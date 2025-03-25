@@ -2,7 +2,7 @@ daftar_belanja=[]
 
 def tambah_item(item):
     daftar_belanja.append(item)
-    print(f'"{item}" telah dtambahkan ke daftar belanja. ')
+    print(f'"{item}" telah ditambahkan ke daftar belanja. ')
 def tampilan_daftar():
     if daftar_belanja:
         print("\nDaftar Belanja:")
