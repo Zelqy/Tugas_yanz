@@ -1,0 +1,67 @@
+  body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #0a0a0a, #f93535);
+      margin: 0;
+      padding: 0;
+      text-align: center;
+  }
+
+  /* Navigasi */
+  .linking {
+      margin: 20px 0;
+  }
+
+  .linking a {
+      text-decoration: none;
+      color: black;
+      font-weight: bold;
+      margin: 0 30px;
+      font-size: 18px;
+  }
+
+  .linking a:hover {
+      color: darkblue;
+  }
+
+  hr {
+      border: none;
+      border-top: 1px solid white;
+      margin: 10px auto;
+      width: 90%;
+  }
+
+  /* Konten */
+  .content {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #ffffffcc;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      text-align: left;
+  }
+
+  h1 {
+      text-align: center;
+      margin-bottom: 30px;
+  }
+
+  section {
+      margin-bottom: 25px;
+  }
+
+  section h2 {
+      border-left: 5px solid #333;
+      padding-left: 10px;
+      margin-bottom: 10px;
+      color: #222;
+  }
+
+  ul {
+      margin: 0;
+      padding-left: 20px;
+  }
+
+  ul li {
+      margin-bottom: 8px;
+  }
