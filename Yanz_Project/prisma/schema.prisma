@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Customer {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  address      String?
+  rentals      Rental[]
+  transactions Transaction[]
+}
+
+model Vehicle {
+  id      Int      @id @default(autoincrement())
+  brand   String
+  model   String?
+  plate   String   @unique
+  rentals Rental[]
+}
+
+model Rental {
+  id           Int           @id @default(autoincrement())
+  customerId   Int
+  vehicleId    Int
+  rentalDate   DateTime
+  endDate      DateTime?
+  totalCost    Float
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  vehicle      Vehicle       @relation(fields: [vehicleId], references: [id])
+  transactions Transaction[]
+}
+
+model Transaction {
+  id         Int      @id @default(autoincrement())
+  rentalId   Int
+  customerId Int
+  amount     Float
+  method     String   @default("CASH")
+  createdAt  DateTime @default(now())
+  rental     Rental   @relation(fields: [rentalId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id])
+}

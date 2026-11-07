@@ -1,0 +1,39 @@
+type Customer {
+  id: Int!
+  name: String!
+  email: String!
+  address: String
+}
+
+type Vehicle {
+  id: Int!
+  brand: String!
+  model: String
+  plate: String!
+}
+
+type Rental {
+  id: Int!
+  rentalDate: String!
+  endDate: String
+  totalCost: Float!
+  customer: Customer!
+  vehicle: Vehicle!
+  transactions: [Transaction!]!
+}
+
+type Transaction {
+  id: Int!
+  amount: Float!
+  method: String!
+  createdAt: String!
+  customer: Customer!
+  rental: Rental!
+}
+
+type Query {
+  rentals: [Rental!]!
+  rental(id: Int!): Rental
+  transactions: [Transaction!]!
+  transaction(id: Int!): Transaction
+}
