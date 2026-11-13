@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+}
+
+model Destinasi {
+  id Int @id @default(autoincrement())
+  nama String
+  kategori String
+  lokasi String?
+  hargaTiket Float
+  ratingRata Float @default(0)
+  ulasan Ulasan[]
+  fasilitas Fasilitas[]
+  createdAt DateTime @default(now())
+}
+
+model Ulasan {
+  id Int @id @default(autoincrement())
+  destinasi Destinasi @relation(fields: [destinasiId], references: [id])
+  destinasiId Int
+  rating Int
+  komentar String
+  createdAt DateTime @default(now())
+}
+
+model Fasilitas {
+  id Int @id @default(autoincrement())
+  destinasi Destinasi @relation(fields: [destinasiId], references: [id])
+  destinasiId Int
+  namaFasilitas String
+}
+
+// Prisma Client will be generated automatically
