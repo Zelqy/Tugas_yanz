@@ -1,0 +1,1872 @@
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 1
+MODUL PRAKTIKUM
+TEKNOLOGI WEB SERVICE
+Membangun REST & GraphQL API dengan
+TypeScript, NestJS, Prisma ORM, dan MariaDB
+Studi Kasus Aplikasi Wisata (WisataKu)
+Disusun Oleh :
+Jihadul Akbar, S.Kom., M.Kom.
+SEKOLAH TINGGI MANAJEMEI INFORMATIKA DAN KOMPUTER
+(STMIK) LOMBOK
+TAHUN 2026
+
+-- 1 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 2
+KATA PENGANTAR
+Modul praktikum ini disusun sebagai bahan ajar pendamping mata kuliah
+Teknologi Web Service, Program Studi Teknik Informatika dan Sistem Inforfmasi,
+STMIK Lombok, dengan fokus pada praktik langsung membangun web service
+modern menggunakan tumpukan teknologi (stack) industry TypeScript, Node.js,
+NestJS sebagai framework backend, Prisma ORM sebagai lapisan akses basis data,
+dan MariaDB sebagai sistem manajemen basis data relasional.
+Modul ini terdiri atas 8 bab tujuh bab berisi materi runtut (teori disertai kode
+langkah demi langkah) dan satu bab penutup berupa studi kasus terintegrasi, di
+mana seluruh modul yang dibangun pada bab-bab sebelumnya disatukan menjadi
+satu backend API yang utuh dan siap didemonstrasikan.
+Konsep dan prinsip desain API dalam modul ini disintesis dari tiga rujukan utama:
+1. Arnaud Lauret (2019), The Design of Web APIs, Manning Publications
+2. Harihara Subramanian & Pethuru Raj (2019), Hands-On RESTful API Design
+Patterns and Best Practices, Packt Publishing
+3. José Haro (2023), Microservice APIs: Using Python, Flask, FastAPI, OpenAPI
+and more, Manning Publications
+Ketiga buku tersebut membahas prinsip desain API secara bahasa-
+agnostik (tidak terikat satu bahasa pemrograman tertentu), sehingga seluruh
+konsepnya desain endpoint, dokumentasi OpenAPI, keamanan, pengujian,
+microservices, hingga siklus hidup API tetap relevan dan diterapkan penuh pada
+implementasi kode menggunakan NestJS, Prisma, dan MariaDB di sepanjang modul
+ini.
+Agar pembelajaran lebih aplikatif, seluruh materi dikaitkan dengan satu
+studi kasus yang dikerjakan secara bertahap dari bab pertama hingga bab terakhir,
+yaitu pengembangan backend “Aplikasi Wisata” (WisataKu) platform informasi,
+ulasan, dan reservasi destinasi wisata yang telah diperkenalkan pada buku ajar teori
+mata kuliah ini, kini diimplementasikan menggunakan stack TypeScript modern.
+Setiap bab disusun dengan format yang konsisten:
+1. Kompetensi Dasar
+2. Indikator
+3. Uraian Materi (teori dan penjelasan detail disertai kode yang jelas dan runut)
+4. Latihan (praktik tersusun runut disertai kode)
+Bab 8 menyajikan integrasi penuh seluruh modul menjadi satu proyek akhir
+sebagai luaran Tugas 6 (Proyek Akhir Web Service Terintegrasi).
+Praya, September 2026
+Jihadul Akbar, S.Kom., M.Kom.
+
+-- 2 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 3
+DAFTAR ISI
+KATA PENGANTAR............................................................................................................................... 2
+DAFTAR ISI .................................................................................................................................................. 3
+TEKNOLOGI YANG DIGUNAKAN ........................................................................................................ 4
+TENTANG STUDI KASUS: APLIKASI WISATA (WisataKu) .................................................... 4
+PETA KOMPETENSI (BAB–SUB-CPMK–TUGAS) ...................................................................... 5
+RENCANA TUGAS PRAKTIKUM .......................................................................................................... 6
+BAB I KONSEP WEB SERVICE, API MODERN & ARSITEKTUR SISTEM
+TERDISTRIBUSI ............................................................................................................................................ 8
+BAB II PERANCANGAN ENDPOINT API & DOKUMENTASI OPENAPI/SWAGGER
+.............................................................................................................................................................................. 11
+BAB III IMPLEMENTASI RESTFUL API DENGAN NESTJS + PRISMA + MARIADB
+.............................................................................................................................................................................. 15
+BAB IV IMPLEMENTASI GRAPHQL API DENGAN NESTJS ............................................ 20
+BAB V KEAMANAN API & PENGUJIAN FUNGSIONAL-PERFORMA .......................... 25
+BAB 6 — INTEGRASI MICROSERVICES DAN API GATEWAY ....................................... 32
+BAB 7 — DEPLOYMENT (DOCKER & CLOUD) DAN MANAJEMEN SIKLUS HIDUP
+API ...................................................................................................................................................................... 36
+BAB 8 — STUDI KASUS TERINTEGRASI: API APLIKASI WISATA END-TO-END 40
+DAFTAR PUSTAKA ................................................................................................................................... 43
+LAMPIRAN — REKAP ENDPOINT API WISATAKU (NESTJS EDITION) .................... 43
+
+-- 3 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 4
+TEKNOLOGI YANG DIGUNAKAN
+Komponen Teknologi Peran
+Bahasa
+Pemrograman
+TypeScript Superset JavaScript dengan sistem
+tipe statis, meningkatkan keandalan
+kode
+Runtime Node.js Lingkungan eksekusi
+JavaScript/TypeScript di sisi server
+Framework
+Backend
+NestJS Framework Node.js progresif,
+arsitektur modular berbasis
+Dependency Injection, terinspirasi
+Angular
+ORM Prisma ORM Lapisan akses basis data type-safe,
+mendukung migrasi skema otomatis
+Basis Data MariaDB RDBMS open-source, kompatibel
+dengan MySQL, digunakan sebagai
+penyimpanan data WisataKu
+Dokumentasi API @nestjs/swagger
+(OpenAPI)
+Menghasilkan dokumentasi REST API
+interaktif secara otomatis dari kode
+GraphQL @nestjs/graphql +
+Apollo Server
+Menyediakan endpoint GraphQL
+dengan pendekatan code-first
+Autentikasi Passport.js (strategi
+JWT)
+Mekanisme autentikasi berbasis token
+pada NestJS
+Pengujian Jest & Supertest Unit testing dan end-to-end testing
+bawaan ekosistem NestJS
+Microservices @nestjs/microservices Komunikasi antar-layanan (TCP/Redis
+transporter)
+Containerization Docker & Docker
+Compose
+Pengemasan dan orkestrasi layanan
+untuk deployment
+TENTANG STUDI KASUS: APLIKASI WISATA (WisataKu)
+Seluruh bab dalam modul ini membangun satu proyek yang sama secara
+bertahap: backend API untuk platform WisataKu, yang memungkinkan wisatawan
+mencari destinasi wisata, membaca/menulis ulasan, dan melakukan reservasi tiket
+kunjungan secara daring, sementara admin mengelola data destinasi.
+Entitas Bisnis Utama
+Entitas
+(Model
+Prisma)
+Deskripsi Atribut Utama
+Destinasi Data destinasi wisata id, nama, kategori, lokasi, deskripsi,
+hargaTiket, ratingRata
+Kategori Kategori destinasi (Pantai, id, namaKategori
+
+-- 4 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 5
+Entitas
+(Model
+Prisma)
+Deskripsi Atribut Utama
+Gunung, Budaya, Kuliner)
+User Wisatawan/admin terdaftar id, nama, email, passwordHash, role
+Ulasan Ulasan & rating wisatawan
+terhadap destinasi
+id, destinasiId, userId, rating,
+komentar, tanggal
+Reservasi Reservasi tiket kunjungan id, userId, destinasiId,
+tanggalKunjungan, jumlahTiket,
+status, totalHarga
+Fasilitas Fasilitas pada destinasi id, destinasiId, namaFasilitas
+Peta Jalan Proyek Sepanjang 8 Bab
+Bab Yang Dibangun pada Backend WisataKu
+1 Analisis kebutuhan, pemilihan arsitektur, inisialisasi proyek NestJS
+2 Desain endpoint resource Destinasi & dokumentasi OpenAPI
+(@nestjs/swagger)
+3 DestinasiModule implementasi RESTful CRUD dengan Prisma + MariaDB
+4 DestinasiResolver implementasi GraphQL untuk data gabungan
+Destinasi+Ulasan+Fasilitas
+5 AuthModule (JWT) + Guard berbasis peran + unit test & e2e test + load test
+6 Pemisahan DestinasiService & ReservasiService menjadi microservices + API
+Gateway
+7 Dockerfile & docker-compose.yml (NestJS + MariaDB) + versioning API
+8 Integrasi penuh seluruh modul menjadi backend WisataKu API yang utuh
+Dengan pendekatan ini, pada akhir modul Anda akan memiliki backend API
+Aplikasi Wisata berbasis NestJS yang lengkap terdokumentasi dengan OpenAPI,
+mendukung REST dan GraphQL, aman dengan JWT, teruji, berarsitektur
+microservices, dan siap di-deploy menggunakan Docker.
+PETA KOMPETENSI (BAB–SUB-CPMK–TUGAS)
+Bab Judul Sub-CPMK Tugas Terkait
+1 Konsep Web Service, API Modern &
+Arsitektur Sistem Terdistribusi
+1.1, 1.2 Tugas 1
+2 Perancangan Endpoint API &
+Dokumentasi OpenAPI/Swagger
+2.1, 2.2 Tugas 2
+3 Implementasi RESTful API dengan
+NestJS + Prisma + MariaDB
+3.1 Tugas 3 (bagian
+REST)
+4 Implementasi GraphQL API dengan
+NestJS
+3.2 Tugas 3 (bagian
+GraphQL)
+5 Keamanan API & Pengujian
+Fungsional-Performa
+4.1, 4.2 Tugas 4
+
+-- 5 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 6
+Bab Judul Sub-CPMK Tugas Terkait
+6 Integrasi Microservices & API Gateway 5.1 Tugas 5 (bagian
+microservices)
+7 Deployment (Docker & Cloud) &
+Manajemen Siklus Hidup API
+6.1, 6.2 Tugas 5 (bagian
+deployment)
+8 Studi Kasus Terintegrasi: API Aplikasi
+Wisata End-to-End
+Seluruh
+Sub-CPMK
+Tugas 6
+RENCANA TUGAS PRAKTIKUM
+Ringkasan Jadwal Tugas
+Minggu / Topik Nama Tugas Sub-
+CPMK
+Cara
+Pengerjaan
+Batas
+Waktu
+2 / Konsep &
+Arsitektur API
+Tugas 1 – Analisis
+Arsitektur Web Service
+1.1, 1.2 Individu 1 Minggu
+4 / API Design Tugas 2 – Desain
+Endpoint &
+Dokumentasi API
+2.1, 2.2 Individu 1 Minggu
+6 / Implementasi API Tugas 3 – Implementasi
+RESTful & GraphQL
+API
+3.1, 3.2 Individu 1 Minggu
+9 / Keamanan &
+Testing API
+Tugas 4 – Keamanan
+dan Pengujian API
+4.1, 4.2 Individu 1 Minggu
+11–12 /
+Microservices &
+Deployment
+Tugas 5 – Integrasi &
+Deployment Web
+Service
+5.1, 6.1 Kelompok
+(2–3)
+1 Minggu
+15 / Proyek Akhir Tugas 6 – Proyek Akhir
+Web Service
+Terintegrasi
+6.1, 6.2 Kelompok
+(PBL)
+1 Minggu
+Rincian Setiap Tugas
+Tugas 1 – Analisis Arsitektur Web Service (Minggu 2, Sub-CPMK 1.1 & 1.2,
+Individu, 1 minggu)
+1. Penugasan: Menganalisis studi kasus sistem terdistribusi dan menjelaskan
+konsep web service, gaya API, serta arsitektur layanan yang sesuai untuk
+WisataKu.
+2. Ruang Lingkup: Web Service, HTTP, REST, GraphQL, Microservices.
+3. Luaran: Laporan PDF + Diagram arsitektur (draw.io).
+4. Indikator & Kriteria: analisis logis & sistematis; pemilihan arsitektur tepat.
+Tugas 2 – Desain Endpoint & Dokumentasi API (Minggu 4, Sub-CPMK 2.1 & 2.2,
+Individu, 1 minggu)
+1. Penugasan: Merancang endpoint API WisataKu dan menyusun dokumentasi
+sesuai standar OpenAPI/Swagger.
+
+-- 6 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 7
+2. Ruang Lingkup: API Design, HTTP Method, URI, OpenAPI.
+3. Luaran: File OpenAPI (YAML/JSON) + Screenshot Swagger UI.
+4. Indikator & Kriteria: endpoint konsisten; dokumentasi lengkap & jelas.
+Tugas 3 – Implementasi RESTful & GraphQL API (Minggu 6, Sub-CPMK 3.1 &
+3.2, Individu, 1 minggu)
+1. Penugasan: Mengimplementasikan RESTful API dan GraphQL API
+sederhana untuk resource Destinasi WisataKu.
+2. Ruang Lingkup: REST API, GraphQL, CRUD.
+3. Luaran: Source code (GitHub) + Screenshot uji API (Postman/Apollo
+Sandbox).
+4. Indikator & Kriteria: API berjalan tanpa error; query & response valid.
+Tugas 4 – Keamanan dan Pengujian API (Minggu 9, Sub-CPMK 4.1 & 4.2,
+Individu, 1 minggu)
+1. Penugasan: Menerapkan autentikasi API dan melakukan pengujian
+fungsional serta performa API WisataKu.
+2. Ruang Lingkup: API Security, JWT, Testing.
+3. Luaran: Source code keamanan API + Laporan pengujian PDF.
+4. Indikator & Kriteria: endpoint aman; hasil uji terdokumentasi.
+Tugas 5 – Integrasi & Deployment Web Service (Minggu 11–12, Sub-CPMK 5.1 &
+6.1, Kelompok 2–3 orang, 1 minggu)
+1. Penugasan: Mengintegrasikan API ke dalam arsitektur microservices dan
+melakukan deployment menggunakan Docker & Cloud.
+2. Ruang Lingkup: Microservices, Docker, Cloud.
+3. Luaran: Dockerfile & image + URL layanan API.
+4. Indikator & Kriteria: service terintegrasi; deployment berhasil.
+Tugas 6 – Proyek Akhir Web Service Terintegrasi (Minggu 15, Sub-CPMK 6.1 &
+6.2, Kelompok/PBL, 1 minggu)
+1. Penugasan: Mengembangkan web service WisataKu lengkap (desain,
+implementasi, keamanan, testing, deployment) dan mempresentasikan
+hasilnya.
+2. Ruang Lingkup: API End-to-End.
+3. Luaran: Source code (GitHub) + API ter-deploy + Dokumentasi teknis PDF +
+Slide presentasi + Video (YouTube).
+4. Indikator & Kriteria: API stabil & aman; dokumentasi lengkap; presentasi
+profesional.
+
+-- 7 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 8
+BAB I
+KONSEP WEB SERVICE, API MODERN &
+ARSITEKTUR SISTEM TERDISTRIBUSI
+1.1 Kompetensi Dasar
+Mahasiswa mampu menjelaskan konsep web service dan API modern (Sub-CPMK
+1.1) serta menganalisis arsitektur web service yang sesuai untuk sistem terdistribusi
+berdasarkan studi kasus (Sub-CPMK 1.2).
+1.2 Indikator
+1. Menjelaskan pengertian web service dan API serta peran protokol HTTP.
+2. Membedakan karakteristik gaya API REST, GraphQL, SOAP, dan gRPC.
+3. Menjelaskan prinsip arsitektur sistem terdistribusi (client-server, stateless,
+layered system).
+4. Menganalisis dan memilih arsitektur (monolitik vs microservices) yang sesuai
+untuk studi kasus Aplikasi Wisata.
+5. Menginisialisasi proyek backend menggunakan NestJS.
+1.3 Uraian Materi
+1.3.1 Web Service dan API
+Web Service adalah unit perangkat lunak yang dapat diakses melalui
+jaringan menggunakan protokol standar, menyediakan fungsi tertentu bagi aplikasi
+lain tanpa aplikasi tersebut perlu mengetahui detail implementasinya. API
+(Application Programming Interface) adalah kontrak yang mendefinisikan cara
+dua perangkat lunak berkomunikasi.
+Sebagian besar web API modern berjalan di atas protokol HTTP, dengan
+elemen penting: method (GET, POST, PUT, PATCH, DELETE), URL, header, body,
+dan status code.
+1.3.2 Gaya API: REST, GraphQL, SOAP, gRPC
+Gaya API Karakteristik Cocok Untuk
+REST Berbasis resource, method
+HTTP semantik, JSON
+API tujuan umum, paling populer
+GraphQL Client menentukan data yang
+diambil dalam satu query
+Kebutuhan data
+gabungan/kompleks
+SOAP Protokol formal berbasis XML
+dengan kontrak WSDL
+Sistem enterprise/legacy
+gRPC Protokol biner (Protocol Buffers)
+di atas HTTP/2
+Komunikasi antar-microservice
+performa tinggi
+Lauret (2019) menegaskan bahwa desain API yang baik berorientasi
+pada pengalaman developer (Developer Experience) yang menggunakannya bukan
+sekadar berfungsi secara teknis. Haro (2023) menambahkan bahwa pemilihan gaya
+API idealnya didasarkan pada pola konsumsi data consumer, bukan sekadar tren
+teknologi.
+
+-- 8 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 9
+1.3.3 Arsitektur Sistem Terdistribusi dan REST
+REST dibangun di atas beberapa batasan arsitektural: client-server
+(pemisahan UI dan logika/data), stateless (setiap request membawa seluruh
+informasi yang dibutuhkan), cacheable, layered system, dan uniform interface.
+Subramanian & Raj (2019) menjelaskan evolusi dari Service-Oriented Architecture
+(SOA) menuju Resource-Oriented Architecture (ROA) sebagai fondasi filosofi REST.
+Monolitik vs Microservices:
+Aspek Monolitik Microservices
+Struktur kode Satu basis kode Terpisah menjadi layanan kecil
+Deployment Satu unit Independen per layanan
+Skalabilitas Skala seluruh aplikasi Skala per-layanan
+Cocok untuk Tim kecil, tahap awal Aplikasi besar, tim terpisah
+Haro (2023) menyarankan agar pemecahan microservices dilakukan
+berdasarkan batas domain bisnis (bounded context), bukan lapisan teknis
+misalnya “Layanan Destinasi” dan “Layanan Reservasi”, bukan “Layanan Database”
+dan “Layanan API”.
+1.3.4 Mengapa NestJS untuk Web Service Modern?
+NestJS adalah framework Node.js yang dibangun di atas TypeScript,
+menyediakan arsitektur modular berbasis Dependency Injection (terinspirasi
+Angular), sehingga kode backend terstruktur rapi ke dalam Module, Controller, dan
+Provider (Service) sangat cocok untuk membangun web service yang berkembang
+dari monolitik menjadi microservices, karena batas modulnya sudah jelas sejak awal.
+Struktur dasar NestJS:
+src/
+├── main.ts # Titik masuk aplikasi
+├── app.module.ts # Root module
+├── destinasi/
+│ ├── destinasi.module.ts
+│ ├── destinasi.controller.ts # Menangani HTTP request (routing)
+│ └── destinasi.service.ts # Berisi logika bisnis
+Contoh Controller paling sederhana untuk memahami alur request-response di
+NestJS:
+// src/destinasi/destinasi.controller.ts
+import { Controller, Get } from '@nestjs/common';
+@Controller('destinasi')
+export class DestinasiController {
+@Get()
+findAll(): string {
+return 'Daftar destinasi wisata akan tampil di sini';
+}
+}
+
+-- 9 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 10
+Decorator @Controller('destinasi') mendaftarkan seluruh method di dalamnya
+sebagai handler untuk path /destinasi, dan @Get() memetakan method HTTP
+GET mirip konsep routing pada framework lain, namun dengan struktur yang lebih
+deklaratif berkat decorator TypeScript.
+1.4 Latihan
+Ikuti langkah-langkah berikut secara berurutan untuk menyiapkan fondasi
+proyek backend WisataKu.
+Langkah 1. Instalasi prasyarat
+node -v # pastikan Node.js versi 18 LTS atau lebih baru
+npm -v
+npm install -g @nestjs/cli
+Langkah 2. Membuat proyek NestJS baru
+nest new wisataku-api
+# Pilih package manager: npm
+cd wisataku-api
+Langkah 3. Menjalankan server pengembangan
+npm run start:dev
+Buka http://localhost:3000 pada browser akan muncul teks "Hello World!" yang
+dihasilkan oleh AppController bawaan NestJS.
+Langkah 4. Membuat modul Destinasi pertama
+nest g module destinasi
+nest g controller destinasi
+Langkah 5. Menulis Controller sederhana
+Ganti isi src/destinasi/destinasi.controller.ts dengan kode pada bagian
+1.3.4 di atas, simpan, lalu buka http://localhost:3000/destinasi pastikan muncul teks
+“Daftar destinasi wisata akan tampil di sini”.
+Langkah 6. Latihan analisis (persiapan Tugas 1)
+Diskusikan dan tuliskan jawaban singkat:
+1. Mengapa arsitektur monolitik modular dipilih sebagai tahap awal
+pengembangan WisataKu, bukan langsung microservices?
+2. Gambarkan diagram sederhana yang menunjukkan bagaimana aplikasi
+mobile dan aplikasi web admin WisataKu akan mengakses backend NestJS
+ini.
+Tugas Terkait: hasil analisis pada langkah 6, dilengkapi dengan diagram arsitektur
+(draw.io) dan laporan PDF, menjadi luaran Tugas 1. Analisis Arsitektur Web
+Service (lihat tabel Rencana Tugas Praktikum).
+
+-- 10 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 11
+BAB II
+PERANCANGAN ENDPOINT API &
+DOKUMENTASI OPENAPI/SWAGGER
+2.1 Kompetensi Dasar
+Mahasiswa mampu merancang struktur endpoint API yang konsisten dan
+mudah digunakan (Sub-CPMK 2.1) serta menyusun dokumentasi API menggunakan
+standar OpenAPI/Swagger (Sub-CPMK 2.2).
+2.2 Indikator
+1. Merancang URI/endpoint API yang konsisten mengikuti konvensi REST.
+2. Menerapkan pemetaan method HTTP dan status code secara semantik.
+3. Merancang DTO (Data Transfer Object) sebagai skema request/response.
+4. Mengintegrasikan @nestjs/swagger untuk menghasilkan dokumentasi
+OpenAPI otomatis.
+2.3 Uraian Materi
+2.3.1 Konvensi Perancangan Endpoint
+Mengikuti prinsip yang dibahas Lauret (2019) dan Subramanian & Raj
+(2019): gunakan kata benda jamak untuk resource (/destinasi, bukan
+/getDestinasi), huruf kecil dengan tanda hubung, dan hierarki untuk relasi
+(/destinasi/:id/ulasan).
+Rancangan endpoint resource Destinasi untuk WisataKu:
+Method Endpoint Deskripsi
+GET /destinasi Daftar destinasi (filter & pagination)
+GET /destinasi/:id Detail satu destinasi
+POST /destinasi Tambah destinasi (khusus admin)
+PATCH /destinasi/:id Ubah sebagian data destinasi (khusus admin)
+DELETE /destinasi/:id Hapus destinasi (khusus admin)
+GET /destinasi/:id/ulasan Ulasan milik destinasi tertentu
+2.3.2 DTO (Data Transfer Object) di NestJS
+DTO adalah kelas yang mendefinisikan bentuk data yang dikirim/diterima
+API berperan sebagai kontrak sekaligus target validasi otomatis menggunakan
+class-validator.
+npm install class-validator class-transformer
+// src/destinasi/dto/create-destinasi.dto.ts
+import { IsString, IsNumber, IsNotEmpty, Min } from 'class-
+validator';
+export class CreateDestinasiDto {
+
+-- 11 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 12
+@IsString()
+@IsNotEmpty()
+nama: string;
+@IsString()
+@IsNotEmpty()
+kategori: string;
+@IsNumber()
+@Min(0)
+hargaTiket: number;
+}
+// src/destinasi/dto/update-destinasi.dto.ts
+import { PartialType } from '@nestjs/swagger';
+import { CreateDestinasiDto } from './create-destinasi.dto';
+// PartialType membuat seluruh field opsional — cocok untuk PATCH
+export class UpdateDestinasiDto extends
+PartialType(CreateDestinasiDto) {}
+Aktifkan ValidationPipe secara global agar seluruh DTO otomatis divalidasi sebelum
+masuk ke handler:
+// src/main.ts
+import { ValidationPipe } from '@nestjs/common';
+async function bootstrap() {
+const app = await NestFactory.create(AppModule);
+app.useGlobalPipes(new ValidationPipe({ whitelist: true,
+transform: true }));
+await app.listen(3000);
+}
+2.3.3 Dokumentasi Otomatis dengan @nestjs/swagger
+npm install @nestjs/swagger swagger-ui-express
+// src/main.ts
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+async function bootstrap() {
+const app = await NestFactory.create(AppModule);
+app.useGlobalPipes(new ValidationPipe({ whitelist: true,
+transform: true }));
+const config = new DocumentBuilder()
+.setTitle('WisataKu API')
+.setDescription('API untuk platform informasi dan reservasi
+destinasi wisata')
+.setVersion('1.0')
+.addBearerAuth()
+.build();
+const document = SwaggerModule.createDocument(app, config);
+SwaggerModule.setup('api/docs', app, document);
+
+-- 12 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 13
+await app.listen(3000);
+}
+bootstrap();
+Tambahkan decorator dokumentasi pada DTO dan Controller agar Swagger UI
+menampilkan informasi lengkap:
+// src/destinasi/dto/create-destinasi.dto.ts (dilengkapi)
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNumber, IsNotEmpty, Min } from 'class-
+validator';
+export class CreateDestinasiDto {
+@ApiProperty({ example: 'Pantai Kuta Mandalika' })
+@IsString()
+@IsNotEmpty()
+nama: string;
+@ApiProperty({ example: 'Pantai' })
+@IsString()
+@IsNotEmpty()
+kategori: string;
+@ApiProperty({ example: 15000 })
+@IsNumber()
+@Min(0)
+hargaTiket: number;
+}
+// src/destinasi/destinasi.controller.ts (dilengkapi dokumentasi)
+import { Controller, Get, Post, Body } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from
+'@nestjs/swagger';
+import { CreateDestinasiDto } from './dto/create-destinasi.dto';
+@ApiTags('Destinasi')
+@Controller('destinasi')
+export class DestinasiController {
+@Get()
+@ApiOperation({ summary: 'Menampilkan daftar destinasi wisata' })
+@ApiResponse({ status: 200, description: 'Daftar destinasi
+berhasil diambil' })
+findAll() {
+return 'Daftar destinasi wisata akan tampil di sini';
+}
+@Post()
+@ApiOperation({ summary: 'Menambahkan destinasi baru (khusus
+admin)' })
+@ApiResponse({ status: 201, description: 'Destinasi berhasil
+dibuat' })
+@ApiResponse({ status: 400, description: 'Data tidak valid' })
+create(@Body() dto: CreateDestinasiDto) {
+return dto;
+}
+}
+
+-- 13 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 14
+Setelah dijalankan, dokumentasi interaktif dapat diakses di
+http://localhost:3000/api/docs, lengkap dengan tombol “Try it out”.
+2.4 Latihan
+Langkah 1. Pasang dependensi
+npm install class-validator class-transformer @nestjs/swagger
+swagger-ui-express
+Langkah 2. Buat folder DTO
+mkdir -p src/destinasi/dto
+Buat file create-destinasi.dto.ts dan update-destinasi.dto.ts sesuai kode
+pada bagian 2.3.2–2.3.3.
+Langkah 3. Konfigurasi Swagger di main.ts
+Salin konfigurasi DocumentBuilder dan SwaggerModule pada bagian 2.3.3 ke
+src/main.ts, lalu jalankan ulang server:
+npm run start:dev
+Buka http://localhost:3000/api/docs dan pastikan endpoint GET /destinasi
+serta POST /destinasi muncul dengan skema CreateDestinasiDto.
+Langkah 4. Lengkapi seluruh endpoint
+Tambahkan endpoint GET /destinasi/:id, PATCH /destinasi/:id, dan DELETE
+/destinasi/:id pada DestinasiController (untuk sementara boleh
+mengembalikan data dummy — implementasi nyata dengan Prisma dibahas pada
+Bab 3), lengkap dengan decorator @ApiOperation dan @ApiResponse.
+Langkah 5. Ekspor dokumen OpenAPI
+Tambahkan potongan berikut pada main.ts untuk menyimpan dokumen OpenAPI ke
+file (berguna untuk luaran Tugas 2):
+import * as fs from 'fs';
+fs.writeFileSync('./openapi.json', JSON.stringify(document, null,
+2));
+Tugas Terkait: dokumen openapi.json yang dihasilkan beserta tangkapan layar
+Swagger UI menjadi luaran Tugas 2. Desain Endpoint & Dokumentasi API.
+
+-- 14 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 15
+BAB III
+IMPLEMENTASI RESTFUL API DENGAN
+NESTJS + PRISMA + MARIADB
+3.1 Kompetensi Dasar
+Mahasiswa mampu mengimplementasikan RESTful API untuk mendukung
+komunikasi data antar aplikasi (Sub-CPMK 3.1).
+3.2 Indikator
+1. Menghubungkan proyek NestJS dengan basis data MariaDB menggunakan
+Prisma ORM.
+2. Mendefinisikan skema data (model Prisma) untuk resource Destinasi.
+3. Mengimplementasikan operasi CRUD lengkap pada DestinasiService.
+4. Menangani error menggunakan exception bawaan NestJS secara konsisten.
+3.3 Uraian Materi
+3.3.1 Instalasi dan Konfigurasi Prisma dengan MariaDB
+Prisma ORM menyediakan lapisan akses basis data type-safe skema data
+didefinisikan dalam satu file (schema.prisma), lalu Prisma menghasilkan client
+TypeScript yang sepenuhnya mengikuti tipe data tersebut kesalahan seperti salah
+nama kolom akan terdeteksi saat kompilasi, bukan saat aplikasi berjalan.
+npm install prisma --save-dev
+npm install @prisma/client
+npx prisma init --datasource-provider mysql
+Catatan: Prisma menggunakan provider mysql untuk MariaDB, karena MariaDB
+kompatibel dengan protokol MySQL.
+Atur koneksi pada file .env:
+DATABASE_URL="mysql://wisataku_user:wisataku_pass@localhost:3306/wis
+ataku_db"
+3.3.2 Mendefinisikan Skema Data
+// prisma/schema.prisma
+generator client {
+provider = "prisma-client-js"
+}
+datasource db {
+provider = "mysql"
+url = env("DATABASE_URL")
+}
+
+-- 15 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 16
+model Destinasi {
+id Int @id @default(autoincrement())
+nama String
+kategori String
+lokasi String?
+hargaTiket Float
+ratingRata Float @default(0)
+ulasan Ulasan[]
+fasilitas Fasilitas[]
+createdAt DateTime @default(now())
+}
+model Ulasan {
+id Int @id @default(autoincrement())
+destinasi Destinasi @relation(fields: [destinasiId], references:
+[id])
+destinasiId Int
+rating Int
+komentar String
+createdAt DateTime @default(now())
+}
+model Fasilitas {
+id Int @id @default(autoincrement())
+destinasi Destinasi @relation(fields: [destinasiId],
+references: [id])
+destinasiId Int
+namaFasilitas String
+}
+Jalankan migrasi untuk membuat tabel di MariaDB sesuai skema:
+npx prisma migrate dev --name init
+Perintah ini menghasilkan file migrasi SQL, menjalankannya ke basis data,
+dan menghasilkan Prisma Client yang siap dipakai di kode TypeScript.
+3.3.3 PrismaService: Menghubungkan Prisma ke NestJS
+// src/prisma/prisma.service.ts
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+@Injectable()
+export class PrismaService extends PrismaClient implements
+OnModuleInit {
+async onModuleInit() {
+await this.$connect();
+}
+}
+// src/prisma/prisma.module.ts
+import { Global, Module } from '@nestjs/common';
+import { PrismaService } from './prisma.service';
+
+-- 16 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 17
+@Global()
+@Module({
+providers: [PrismaService],
+exports: [PrismaService],
+})
+export class PrismaModule {}
+Dengan @Global(), PrismaService dapat langsung disuntikkan (inject) ke
+service mana pun tanpa perlu mengimpor PrismaModule berulang-ulang.
+3.3.4 Implementasi CRUD pada DestinasiService
+// src/destinasi/destinasi.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateDestinasiDto } from './dto/create-destinasi.dto';
+import { UpdateDestinasiDto } from './dto/update-destinasi.dto';
+@Injectable()
+export class DestinasiService {
+constructor(private prisma: PrismaService) {}
+async findAll(kategori?: string) {
+return this.prisma.destinasi.findMany({
+where: kategori ? { kategori } : undefined,
+orderBy: { createdAt: 'desc' },
+});
+}
+async findOne(id: number) {
+const destinasi = await this.prisma.destinasi.findUnique({
+where: { id } });
+if (!destinasi) {
+throw new NotFoundException(`Destinasi dengan id ${id} tidak
+ditemukan`);
+}
+return destinasi;
+}
+async create(dto: CreateDestinasiDto) {
+return this.prisma.destinasi.create({ data: dto });
+}
+async update(id: number, dto: UpdateDestinasiDto) {
+await this.findOne(id); // memastikan data ada, otomatis
+melempar 404 jika tidak
+return this.prisma.destinasi.update({ where: { id }, data: dto
+});
+}
+async remove(id: number) {
+await this.findOne(id);
+await this.prisma.destinasi.delete({ where: { id } });
+return { message: 'Destinasi berhasil dihapus' };
+
+-- 17 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 18
+}
+}
+3.3.5 Menghubungkan Service ke Controller
+// src/destinasi/destinasi.controller.ts
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query,
+ParseIntPipe, HttpCode } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { DestinasiService } from './destinasi.service';
+import { CreateDestinasiDto } from './dto/create-destinasi.dto';
+import { UpdateDestinasiDto } from './dto/update-destinasi.dto';
+@ApiTags('Destinasi')
+@Controller('destinasi')
+export class DestinasiController {
+constructor(private readonly destinasiService: DestinasiService)
+{}
+@Get()
+@ApiOperation({ summary: 'Menampilkan daftar destinasi, dapat
+difilter berdasarkan kategori' })
+findAll(@Query('kategori') kategori?: string) {
+return this.destinasiService.findAll(kategori);
+}
+@Get(':id')
+findOne(@Param('id', ParseIntPipe) id: number) {
+return this.destinasiService.findOne(id);
+}
+@Post()
+create(@Body() dto: CreateDestinasiDto) {
+return this.destinasiService.create(dto);
+}
+@Patch(':id')
+update(@Param('id', ParseIntPipe) id: number, @Body() dto:
+UpdateDestinasiDto) {
+return this.destinasiService.update(id, dto);
+}
+@Delete(':id')
+@HttpCode(200)
+remove(@Param('id', ParseIntPipe) id: number) {
+return this.destinasiService.remove(id);
+}
+}
+ParseIntPipe mengonversi parameter :id dari string menjadi number sekaligus
+memvalidasinya jika bukan angka, NestJS otomatis mengembalikan 400 Bad Request
+tanpa perlu kode tambahan. Method findOne, update, dan remove pada Service
+melempar NotFoundException bawaan NestJS, yang otomatis diterjemahkan
+menjadi respons 404 dengan format JSON error yang konsisten di seluruh API.
+
+-- 18 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 19
+3.4 Latihan
+Langkah 1. Siapkan MariaDB (via Docker agar praktis)
+docker run --name mariadb-wisataku -e MYSQL_ROOT_PASSWORD=root \
+-e MYSQL_DATABASE=wisataku_db -e MYSQL_USER=wisataku_user \
+-e MYSQL_PASSWORD=wisataku_pass -p 3306:3306 -d mariadb:11
+Langkah 2. Instal dan inisialisasi Prisma
+npm install prisma --save-dev
+npm install @prisma/client
+npx prisma init --datasource-provider mysql
+Sesuaikan DATABASE_URL pada .env seperti pada bagian 3.3.1.
+Langkah 3. Tulis skema dan jalankan migrasi
+Salin skema pada bagian 3.3.2 ke prisma/schema.prisma, lalu jalankan:
+npx prisma migrate dev --name init
+npx prisma studio # (opsional) buka GUI untuk melihat isi tabel di
+browser
+Langkah 4. Buat modul Prisma
+Buat src/prisma/prisma.service.ts dan src/prisma/prisma.module.ts
+sesuai bagian 3.3.3, lalu impor PrismaModule pada app.module.ts.
+Langkah 5. Implementasikan Service dan Controller
+Ganti isi destinasi.service.ts dan destinasi.controller.ts sesuai bagian
+3.3.4–3.3.5.
+Langkah 6. Uji seluruh endpoint dengan curl/Postman
+# Tambah data
+curl -X POST http://localhost:3000/destinasi \
+-H "Content-Type: application/json" \
+-d '{"nama":"Pantai Kuta
+Mandalika","kategori":"Pantai","hargaTiket":15000}'
+# Lihat daftar
+curl http://localhost:3000/destinasi
+# Lihat detail
+curl http://localhost:3000/destinasi/1
+# Uji error 404
+curl http://localhost:3000/destinasi/999
+Pastikan seluruh operasi CRUD berjalan tanpa error, dan data benar-benar
+tersimpan (verifikasi dengan npx prisma studio).
+Tugas Terkait: implementasi CRUD Destinasi di atas menjadi bagian pertama dari
+luaran Tugas 3. Implementasi RESTful & GraphQL API (bagian REST); lanjutkan
+ke Bab 4 untuk bagian GraphQL-nya.
+
+-- 19 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 20
+BAB IV
+IMPLEMENTASI GRAPHQL API DENGAN NESTJS
+4.1 Kompetensi Dasar
+Mahasiswa mampu mengimplementasikan GraphQL API untuk pengelolaan
+dan pengambilan data yang efisien (Sub-CPMK 3.2).
+4.2 Indikator
+1. Menjelaskan konsep schema, query, mutation, dan resolver pada GraphQL.
+2. Mengonfigurasi @nestjs/graphql dengan pendekatan code-first.
+3. Mengimplementasikan resolver untuk pengambilan data gabungan Destinasi,
+Ulasan, dan Fasilitas.
+4. Mengimplementasikan mutation untuk menambahkan data melalui GraphQL.
+4.3 Uraian Materi
+4.3.1 Mengapa GraphQL Melengkapi REST pada WisataKu
+Untuk menampilkan halaman detail destinasi (nama, kategori, 3 ulasan
+terbaru, daftar fasilitas), REST API pada Bab 3 membutuhkan beberapa kali request
+terpisah. GraphQL memungkinkan client mengambil seluruh data tersebut dalam
+satu permintaan, dengan struktur data yang ditentukan sendiri oleh client
+mengatasi masalah over-fetching dan banyaknya round-trip, sebagaimana dibahas
+Haro (2023).
+4.3.2 Pendekatan Code-First pada NestJS
+NestJS mendukung dua pendekatan GraphQL: schema-first (menulis file
+.graphql secara manual) dan code-first (schema dihasilkan otomatis dari class dan
+decorator TypeScript). Modul ini menggunakan pendekatan code-first karena lebih
+selaras dengan DTO dan model yang sudah didefinisikan pada bab-bab
+sebelumnya.
+npm install @nestjs/graphql @nestjs/apollo @apollo/server graphql
+// src/app.module.ts
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
+@Module({
+imports: [
+GraphQLModule.forRoot<ApolloDriverConfig>({
+driver: ApolloDriver,
+autoSchemaFile: join(process.cwd(), 'src/schema.gql'), //
+schema dihasilkan otomatis
+sortSchema: true,
+}),
+// ...modul lain
+],
+
+-- 20 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 21
+})
+export class AppModule {}
+4.3.3 Mendefinisikan Tipe GraphQL (ObjectType)
+// src/destinasi/entities/destinasi.entity.ts
+import { ObjectType, Field, Int, Float } from '@nestjs/graphql';
+import { Ulasan } from '../../ulasan/entities/ulasan.entity';
+import { Fasilitas } from
+'../../fasilitas/entities/fasilitas.entity';
+@ObjectType()
+export class Destinasi {
+@Field(() => Int)
+id: number;
+@Field()
+nama: string;
+@Field()
+kategori: string;
+@Field(() => Float)
+hargaTiket: number;
+@Field(() => Float)
+ratingRata: number;
+@Field(() => [Ulasan], { nullable: true })
+ulasan?: Ulasan[];
+@Field(() => [Fasilitas], { nullable: true })
+fasilitas?: Fasilitas[];
+}
+// src/ulasan/entities/ulasan.entity.ts
+import { ObjectType, Field, Int } from '@nestjs/graphql';
+@ObjectType()
+export class Ulasan {
+@Field(() => Int)
+id: number;
+@Field(() => Int)
+rating: number;
+@Field()
+komentar: string;
+}
+4.3.4 Resolver: Query dan Nested Field
+// src/destinasi/destinasi.resolver.ts
+import { Resolver, Query, Args, Int, ResolveField, Parent } from
+'@nestjs/graphql';
+
+-- 21 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 22
+import { Destinasi } from './entities/destinasi.entity';
+import { DestinasiService } from './destinasi.service';
+import { PrismaService } from '../prisma/prisma.service';
+@Resolver(() => Destinasi)
+export class DestinasiResolver {
+constructor(
+private readonly destinasiService: DestinasiService,
+private readonly prisma: PrismaService,
+) {}
+@Query(() => Destinasi, { name: 'destinasi' })
+findOne(@Args('id', { type: () => Int }) id: number) {
+return this.destinasiService.findOne(id);
+}
+@Query(() => [Destinasi], { name: 'cariDestinasi' })
+findAll(@Args('kategori', { nullable: true }) kategori?: string) {
+return this.destinasiService.findAll(kategori);
+}
+// Resolver field bertingkat: hanya dieksekusi jika client meminta
+field "ulasan"
+@ResolveField('ulasan', () => [Object])
+async getUlasan(@Parent() destinasi: Destinasi) {
+return this.prisma.ulasan.findMany({
+where: { destinasiId: destinasi.id },
+orderBy: { createdAt: 'desc' },
+take: 3,
+});
+}
+@ResolveField('fasilitas', () => [Object])
+async getFasilitas(@Parent() destinasi: Destinasi) {
+return this.prisma.fasilitas.findMany({ where: { destinasiId:
+destinasi.id } });
+}
+}
+Konsep @ResolveField inilah yang membuat GraphQL efisien: field ulasan
+dan fasilitas hanya diambil dari basis data jika client benar-benar memintanya
+dalam query, berbeda dengan REST yang biasanya selalu mengembalikan struktur
+data yang sama.
+4.3.5 Mutation: Menambahkan Data melalui GraphQL
+// src/ulasan/dto/create-ulasan.input.ts
+import { InputType, Field, Int } from '@nestjs/graphql';
+@InputType()
+export class CreateUlasanInput {
+@Field(() => Int)
+destinasiId: number;
+@Field(() => Int)
+
+-- 22 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 23
+rating: number;
+@Field()
+komentar: string;
+}
+// src/ulasan/ulasan.resolver.ts
+import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { Ulasan } from './entities/ulasan.entity';
+import { CreateUlasanInput } from './dto/create-ulasan.input';
+import { PrismaService } from '../prisma/prisma.service';
+@Resolver(() => Ulasan)
+export class UlasanResolver {
+constructor(private readonly prisma: PrismaService) {}
+@Mutation(() => Ulasan, { name: 'tambahUlasan' })
+async tambahUlasan(@Args('input') input: CreateUlasanInput) {
+return this.prisma.ulasan.create({ data: input });
+}
+}
+Contoh query yang dapat dikirim client (menggantikan 3 request REST menjadi satu
+permintaan):
+query {
+destinasi(id: 1) {
+nama
+kategori
+ratingRata
+ulasan {
+rating
+komentar
+}
+fasilitas {
+namaFasilitas
+}
+}
+}
+Contoh mutation menambah ulasan baru:
+mutation {
+tambahUlasan(input: { destinasiId: 1, rating: 5, komentar:
+"Pemandangan luar biasa!" }) {
+id
+komentar
+}
+}
+4.4 Latihan
+Langkah 1. Pasang dependensi GraphQL
+npm install @nestjs/graphql @nestjs/apollo @apollo/server graphql
+Langkah 2. Konfigurasi GraphQLModule
+
+-- 23 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 24
+Tambahkan GraphQLModule.forRoot(...) pada app.module.ts sesuai bagian
+4.3.2.
+Langkah 3. Buat entity GraphQL
+Buat folder entities/ pada masing-masing modul (destinasi, ulasan,
+fasilitas) dan definisikan @ObjectType() sesuai bagian 4.3.3.
+Langkah 4. Implementasikan Resolver
+Buat destinasi.resolver.ts dan ulasan.resolver.ts sesuai bagian 4.3.4–
+4.3.5, lalu daftarkan sebagai providers pada module masing-masing.
+Langkah 5. Uji melalui Apollo Sandbox
+Jalankan npm run start:dev, buka http://localhost:3000/graphql (Apollo
+Sandbox akan terbuka otomatis dalam mode development), lalu jalankan query dan
+mutation pada bagian 4.3.5.
+Langkah 6. Bandingkan jumlah request
+Dokumentasikan (sebagai bagian laporan Tugas 3): berapa kali request HTTP
+dibutuhkan untuk menampilkan “detail destinasi lengkap” menggunakan
+REST murni (Bab 3) dibandingkan menggunakan GraphQL (bab ini).
+Tugas Terkait: hasil implementasi resolver dan mutation di atas menjadi bagian
+kedua dari luaran Tugas 3. Implementasi RESTful & GraphQL API (bagian
+GraphQL), dilengkapi tangkapan layar hasil query dari Apollo Sandbox.
+
+-- 24 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 25
+BAB V
+KEAMANAN API &
+PENGUJIAN FUNGSIONAL-PERFORMA
+5.1 Kompetensi Dasar
+Mahasiswa mampu menerapkan mekanisme keamanan API meliputi
+autentikasi dan otorisasi (Sub-CPMK 4.1) serta menguji dan mengevaluasi performa
+API melalui pengujian fungsional dan non-fungsional (Sub-CPMK 4.2).
+5.2 Indikator
+1. Mengimplementasikan autentikasi berbasis JWT menggunakan Passport.js
+pada NestJS.
+2. Menerapkan hashing password dan mekanisme registrasi/login yang aman.
+3. Menerapkan otorisasi berbasis peran (RBAC) menggunakan Guard dan
+Decorator kustom.
+4. Menulis pengujian unit (Jest) dan end-to-end (Supertest).
+5. Melakukan pengujian performa/beban menggunakan k6.
+5.3 Uraian Materi
+5.3.1 Autentikasi vs Otorisasi
+Autentikasi menjawab “siapa kamu?”, otorisasi menjawab “apakah kamu
+berhak?”. WisataKu menggunakan JWT (JSON Web Token) karena sifatnya
+stateless selaras dengan arsitektur microservices yang akan dibahas pada Bab 6,
+karena setiap layanan dapat memverifikasi token secara independen tanpa sesi
+terpusat.
+5.3.2 Implementasi AuthModule dengan Passport-JWT
+npm install @nestjs/passport passport passport-jwt @nestjs/jwt
+bcrypt
+npm install -D @types/passport-jwt @types/bcrypt
+Tambahkan model User pada schema.prisma:
+model User {
+id Int @id @default(autoincrement())
+nama String
+email String @unique
+passwordHash String
+role String @default("wisatawan") // "wisatawan" atau
+"admin"
+}
+npx prisma migrate dev --name add_user
+AuthService registrasi dan login:
+// src/auth/auth.service.ts
+import { Injectable, UnauthorizedException, ConflictException } from
+
+-- 25 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 26
+'@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../prisma/prisma.service';
+@Injectable()
+export class AuthService {
+constructor(private prisma: PrismaService, private jwtService:
+JwtService) {}
+async register(nama: string, email: string, password: string) {
+const existing = await this.prisma.user.findUnique({ where: {
+email } });
+if (existing) throw new ConflictException('Email sudah
+terdaftar');
+const passwordHash = await bcrypt.hash(password, 10);
+const user = await this.prisma.user.create({
+data: { nama, email, passwordHash, role: 'wisatawan' },
+});
+return { id: user.id, nama: user.nama, email: user.email };
+}
+async login(email: string, password: string) {
+const user = await this.prisma.user.findUnique({ where: { email
+} });
+if (!user || !(await bcrypt.compare(password,
+user.passwordHash))) {
+throw new UnauthorizedException('Email atau password salah');
+}
+const payload = { sub: user.id, role: user.role };
+return { access_token: this.jwtService.sign(payload),
+token_type: 'Bearer' };
+}
+}
+JwtStrategy memverifikasi token pada setiap request yang dilindungi:
+// src/auth/jwt.strategy.ts
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+constructor() {
+super({
+jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+ignoreExpiration: false,
+secretOrKey: process.env.JWT_SECRET || 'rahasia_wisataku',
+});
+}
+async validate(payload: any) {
+
+-- 26 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 27
+return { userId: payload.sub, role: payload.role }; //
+disuntikkan ke request.user
+}
+}
+5.3.3 Otorisasi Berbasis Peran (RBAC)
+Guard bawaan Passport untuk memeriksa token:
+// src/auth/jwt-auth.guard.ts
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {}
+Decorator dan Guard kustom untuk memeriksa peran:
+// src/auth/roles.decorator.ts
+import { SetMetadata } from '@nestjs/common';
+export const Roles = (...roles: string[]) => SetMetadata('roles',
+roles);
+// src/auth/roles.guard.ts
+import { Injectable, CanActivate, ExecutionContext,
+ForbiddenException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+@Injectable()
+export class RolesGuard implements CanActivate {
+constructor(private reflector: Reflector) {}
+canActivate(context: ExecutionContext): boolean {
+const requiredRoles = this.reflector.get<string[]>('roles',
+context.getHandler());
+if (!requiredRoles) return true;
+const { user } = context.switchToHttp().getRequest();
+if (!requiredRoles.includes(user.role)) {
+throw new ForbiddenException('Anda tidak berwenang mengakses
+resource ini');
+}
+return true;
+}
+}
+Penerapan pada Controller:
+// src/destinasi/destinasi.controller.ts (dilengkapi keamanan)
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+@Post()
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin')
+
+-- 27 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 28
+create(@Body() dto: CreateDestinasiDto) {
+return this.destinasiService.create(dto);
+}
+Dengan pola ini, endpoint POST /destinasi hanya dapat diakses oleh
+pengguna yang terautentikasi (JwtAuthGuard) DAN berperan admin
+(RolesGuard + @Roles) — jika salah satu syarat tidak terpenuhi, NestJS otomatis
+mengembalikan 401 atau 403 sesuai konteksnya.
+5.3.4 Pengujian Unit dengan Jest
+NestJS menyertakan Jest secara bawaan. Contoh unit test untuk
+AuthService (menggunakan mock PrismaService agar tidak bergantung pada basis
+data sungguhan):
+// src/auth/auth.service.spec.ts
+import { Test } from '@nestjs/testing';
+import { AuthService } from './auth.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConflictException } from '@nestjs/common';
+describe('AuthService', () => {
+let service: AuthService;
+const prismaMock = {
+user: { findUnique: jest.fn(), create: jest.fn() },
+};
+beforeEach(async () => {
+const module = await Test.createTestingModule({
+providers: [
+AuthService,
+{ provide: PrismaService, useValue: prismaMock },
+{ provide: JwtService, useValue: { sign: jest.fn(() =>
+'fake-token') } },
+],
+}).compile();
+service = module.get(AuthService);
+});
+it('harus menolak registrasi jika email sudah terdaftar', async ()
+=> {
+prismaMock.user.findUnique.mockResolvedValue({ id: 1, email:
+'ada@example.com' });
+await expect(
+service.register('Budi', 'ada@example.com', 'rahasia123'),
+).rejects.toThrow(ConflictException);
+});
+});
+npm run test
+5.3.5 Pengujian End-to-End dengan Supertest
+// test/destinasi.e2e-spec.ts
+import { Test } from '@nestjs/testing';
+
+-- 28 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 29
+import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from '../src/app.module';
+describe('DestinasiController (e2e)', () => {
+let app: INestApplication;
+beforeAll(async () => {
+const moduleRef = await Test.createTestingModule({ imports:
+[AppModule] }).compile();
+app = moduleRef.createNestApplication();
+await app.init();
+});
+it('GET /destinasi harus mengembalikan status 200 dan array', ()
+=> {
+return request(app.getHttpServer())
+.get('/destinasi')
+.expect(200)
+.expect((res) => {
+expect(Array.isArray(res.body)).toBe(true);
+});
+});
+it('POST /destinasi tanpa token harus ditolak (401)', () => {
+return request(app.getHttpServer())
+.post('/destinasi')
+.send({ nama: 'Bukit Merese', kategori: 'Pantai', hargaTiket:
+10000 })
+.expect(401);
+});
+afterAll(async () => await app.close());
+});
+npm run test:e2e
+5.3.6 Pengujian Performa dengan k6
+// load-test.js
+import http from 'k6/http';
+import { sleep, check } from 'k6';
+export const options = {
+vus: 50, // 50 pengguna virtual bersamaan
+duration: '30s',
+};
+export default function () {
+const res = http.get('http://localhost:3000/destinasi');
+check(res, { 'status 200': (r) => r.status === 200 });
+sleep(1);
+}
+k6 run load-test.js
+
+-- 29 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 30
+Hasil k6 menampilkan metrik penting seperti response time rata-rata, p95,
+dan tingkat kegagalan request data ini menjadi dasar evaluasi performa yang akan
+dibahas kembali pada Bab 7.
+5.4 Latihan
+Langkah 1. Pasang dependensi keamanan
+npm install @nestjs/passport passport passport-jwt @nestjs/jwt
+bcrypt
+npm install -D @types/passport-jwt @types/bcrypt
+Langkah 2. Tambahkan model User dan migrasi
+Tambahkan model User pada schema.prisma sesuai bagian 5.3.2, jalankan npx
+prisma migrate dev --name add_user.
+Langkah 3. Implementasikan AuthModule
+Buat auth.service.ts, jwt.strategy.ts, auth.controller.ts (dengan
+endpoint POST /auth/register dan POST /auth/login), lalu daftarkan
+JwtModule.register({ secret: ... }) pada auth.module.ts.
+Langkah 4. Lindungi endpoint sensitif
+Terapkan @UseGuards(JwtAuthGuard, RolesGuard) dan @Roles('admin') pada
+endpoint POST, PATCH, DELETE /destinasi sesuai bagian 5.3.3.
+Langkah 5. Uji alur keamanan secara manual
+# Registrasi
+curl -X POST http://localhost:3000/auth/register \
+-H "Content-Type: application/json" \
+-d '{"nama":"Admin
+Satu","email":"admin@wisataku.id","password":"admin123"}'
+# Login dan simpan token
+curl -X POST http://localhost:3000/auth/login \
+-H "Content-Type: application/json" \
+-d '{"email":"admin@wisataku.id","password":"admin123"}'
+# Gunakan token untuk mengakses endpoint terlindungi
+curl -X POST http://localhost:3000/destinasi \
+-H "Authorization: Bearer <TOKEN_DI_SINI>" \
+-H "Content-Type: application/json" \
+-d '{"nama":"Gili
+Trawangan","kategori":"Pulau","hargaTiket":20000}'
+Langkah 6. Tulis dan jalankan pengujian
+Buat auth.service.spec.ts dan test/destinasi.e2e-spec.ts sesuai bagian
+5.3.4–5.3.5, jalankan npm run test dan npm run test:e2e, pastikan seluruh test
+lulus.
+
+-- 30 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 31
+Langkah 7. Jalankan load test
+Instal k6, buat load-test.js sesuai bagian 5.3.6, jalankan k6 run load-test.js,
+dan catat hasil metrik response time serta error rate.
+Tugas Terkait: source code AuthModule beserta Guard, hasil unit test, e2e
+test, dan laporan load test (PDF) menjadi luaran Tugas 4. Keamanan dan
+Pengujian API.
+
+-- 31 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 32
+BAB VII
+INTEGRASI MICROSERVICES DAN
+API GATEWAY
+6.1 Kompetensi Dasar
+Mahasiswa mampu mengintegrasikan web service dalam arsitektur
+microservices termasuk penggunaan API Gateway dan komunikasi layanan (Sub-
+CPMK 5.1).
+6.2 Indikator
+1. Menjelaskan konsep dan komponen @nestjs/microservices.
+2. Memecah DestinasiService menjadi aplikasi microservice independen.
+3. Mengimplementasikan API Gateway yang berkomunikasi dengan
+microservice melalui ClientProxy.
+4. Menguji komunikasi antar-layanan secara menyeluruh.
+6.3 Uraian Materi
+6.3.1 Dari Modul ke Microservice
+Sejak Bab 1, backend WisataKu dibangun sebagai monolitik modular
+modul Destinasi, Ulasan, Reservasi terpisah rapi tetapi berjalan dalam satu proses
+aplikasi. Subramanian & Raj (2019) dan Haro (2023) menjelaskan bahwa struktur
+modular semacam ini memudahkan evolusi ke microservices, karena batas
+tanggung jawab setiap modul sudah jelas tinggal “dilepas” menjadi aplikasi NestJS
+independen yang berkomunikasi melalui transporter (TCP, Redis, NATS, dll).
+6.3.2 Membuat Aplikasi Microservice Terpisah
+npm install @nestjs/microservices
+Setiap microservice adalah proyek NestJS terpisah (misalnya service-
+destinasi/ dan service-reservasi/), masing-masing dengan main.ts yang
+dikonfigurasi sebagai microservice, bukan aplikasi HTTP biasa:
+// service-destinasi/src/main.ts
+import { NestFactory } from '@nestjs/core';
+import { Transport, MicroserviceOptions } from
+'@nestjs/microservices';
+import { AppModule } from './app.module';
+async function bootstrap() {
+const app = await
+NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+transport: Transport.TCP,
+options: { host: '0.0.0.0', port: 5001 },
+});
+await app.listen();
+}
+bootstrap();
+
+-- 32 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 33
+6.3.3 Message Pattern: Menangani Permintaan dari Layanan Lain
+Alih-alih @Get()/@Post() seperti pada REST Controller, microservice
+menggunakan @MessagePattern() untuk menangani permintaan yang datang dari
+layanan lain (bukan langsung dari client HTTP):
+// service-destinasi/src/destinasi/destinasi.controller.ts
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { DestinasiService } from './destinasi.service';
+@Controller()
+export class DestinasiController {
+constructor(private readonly destinasiService: DestinasiService)
+{}
+@MessagePattern('destinasi.findAll')
+findAll(@Payload() data: { kategori?: string }) {
+return this.destinasiService.findAll(data.kategori);
+}
+@MessagePattern('destinasi.findOne')
+findOne(@Payload() id: number) {
+return this.destinasiService.findOne(id);
+}
+}
+Service dan koneksi Prisma pada microservice ini tetap sama persis
+dengan implementasi DestinasiService pada Bab 3 hanya lapisan Controller yang
+berubah dari HTTP menjadi message pattern.
+6.3.4 API Gateway: Titik Masuk Tunggal bagi Client
+API Gateway adalah aplikasi NestJS HTTP biasa (seperti aplikasi utama
+sejak Bab 1), namun alih-alih mengakses basis data langsung, ia meneruskan
+permintaan ke microservice yang sesuai menggunakan ClientProxy:
+// gateway/src/destinasi/destinasi.module.ts
+import { Module } from '@nestjs/common';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { DestinasiController } from './destinasi.controller';
+@Module({
+imports: [
+ClientsModule.register([
+{
+name: 'DESTINASI_SERVICE',
+transport: Transport.TCP,
+options: { host: 'service-destinasi', port: 5001 },
+},
+]),
+],
+controllers: [DestinasiController],
+})
+export class DestinasiGatewayModule {}
+
+-- 33 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 34
+// gateway/src/destinasi/destinasi.controller.ts
+import { Controller, Get, Param, Query, Inject } from
+'@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+@Controller('destinasi')
+export class DestinasiController {
+constructor(@Inject('DESTINASI_SERVICE') private client:
+ClientProxy) {}
+@Get()
+async findAll(@Query('kategori') kategori?: string) {
+return firstValueFrom(this.client.send('destinasi.findAll', {
+kategori }));
+}
+@Get(':id')
+async findOne(@Param('id') id: number) {
+return firstValueFrom(this.client.send('destinasi.findOne',
+id));
+}
+}
+Client (aplikasi mobile/web admin) tidak perlu tahu bahwa di baliknya
+terdapat beberapa microservice terpisah mereka cukup mengakses satu alamat
+Gateway, persis seperti mengakses REST API biasa pada Bab 3.
+6.3.5 Agregasi Data dari Beberapa Layanan
+Gateway juga dapat menggabungkan data dari beberapa microservice
+sekaligus dalam satu endpoint, sebagaimana dibahas Subramanian & Raj (2019)
+tentang API Composition:
+@Get(':id/lengkap')
+async getDestinasiLengkap(@Param('id') id: number) {
+const [destinasi, ulasan] = await Promise.all([
+firstValueFrom(this.destinasiClient.send('destinasi.findOne',
+id)),
+firstValueFrom(this.ulasanClient.send('ulasan.findByDestinasi',
+id)),
+]);
+return { ...destinasi, ulasanTerbaru: ulasan };
+}
+6.4 Latihan
+Langkah 1. Siapkan struktur proyek microservices
+mkdir wisataku-microservices && cd wisataku-microservices
+nest new service-destinasi
+nest new service-reservasi
+nest new gateway
+
+-- 34 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 35
+Langkah 2. Pindahkan modul Destinasi ke service-destinasi
+Salin destinasi/ (module, service, Prisma config) dari proyek Bab 3 ke
+service-destinasi/src/, lalu ubah Controller-nya menjadi @MessagePattern
+sesuai bagian 6.3.3. Ubah main.ts sesuai bagian 6.3.2.
+Langkah 3. Bangun Gateway
+Pada proyek gateway, buat destinasi.module.ts dan destinasi.controller.ts
+sesuai bagian 6.3.4, yang meneruskan permintaan ke service-destinasi.
+Langkah 4. Jalankan ketiga aplikasi
+# Terminal 1
+cd service-destinasi && npm run start:dev
+# Terminal 2
+cd gateway && npm run start:dev
+Langkah 5. Uji end-to-end melalui Gateway
+curl http://localhost:3000/destinasi #gateway meneruskan ke service-
+destinasi
+curl http://localhost:3000/destinasi/1
+Pastikan Gateway berhasil mengambil data dari service-destinasi melalui komunikasi
+TCP internal, tanpa client perlu mengetahui port 5001 sama sekali.
+Langkah 6. (Kelompok) Ulangi untuk Service Reservasi
+Lakukan langkah yang sama untuk memisahkan modul Reservasi menjadi service-
+reservasi, lalu tambahkan endpoint agregasi GET /destinasi/:id/lengkap pada
+Gateway sesuai bagian 6.3.5.
+Tugas Terkait: struktur microservices dan Gateway yang berhasil dijalankan pada
+langkah di atas menjadi bagian pertama dari luaran Tugas 5. Integrasi &
+Deployment Web Service (bagian microservices); bagian deployment dilanjutkan
+pada Bab 7.
+
+-- 35 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 36
+BAB VII
+DEPLOYMENT (DOCKER & CLOUD) DAN
+MANAJEMEN SIKLUS HIDUP API
+7.1 Kompetensi Dasar
+Mahasiswa mampu melakukan deployment web service menggunakan
+container dan cloud computing sesuai standar industri (Sub-CPMK 6.1) serta
+mengevaluasi dan mengelola siklus hidup API berdasarkan aspek keamanan,
+performa, dan keberlanjutan layanan (Sub-CPMK 6.2).
+7.2 Indikator
+1. Membuat Dockerfile multi-stage untuk aplikasi NestJS.
+2. Menjalankan seluruh layanan (Gateway, microservices, MariaDB)
+menggunakan Docker Compose.
+3. Menerapkan strategi versioning API bawaan NestJS.
+4. Menyusun rencana evaluasi dan dokumentasi siklus hidup API (changelog,
+deprecation).
+7.3 Uraian Materi
+7.3.1 Dockerfile Multi-Stage untuk NestJS
+Aplikasi NestJS perlu di-compile (TypeScript → JavaScript) sebelum dijalankan di
+lingkungan produksi. Pola multi-stage build memisahkan tahap build (memerlukan
+seluruh dependency development) dari tahap runtime (hanya memerlukan hasil build
+dan dependency produksi), menghasilkan image yang jauh lebih ringan sejalan
+dengan praktik yang dibahas Haro (2023) untuk dockerizing microservice API.
+# service-destinasi/Dockerfile
+# Tahap 1: build
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npx prisma generate
+RUN npm run build
+# Tahap 2: runtime (ringan, hanya dependency produksi)
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+EXPOSE 5001
+CMD ["node", "dist/main"]
+
+-- 36 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 37
+7.3.2 Docker Compose: Menjalankan Seluruh Sistem WisataKu
+# docker-compose.yml
+version: "3.9"
+services:
+mariadb:
+image: mariadb:11
+environment:
+MYSQL_ROOT_PASSWORD: root
+MYSQL_DATABASE: wisataku_db
+MYSQL_USER: wisataku_user
+MYSQL_PASSWORD: wisataku_pass
+ports: ["3306:3306"]
+volumes: [mariadb_data:/var/lib/mysql]
+service-destinasi:
+build: ./service-destinasi
+environment:
+DATABASE_URL:
+mysql://wisataku_user:wisataku_pass@mariadb:3306/wisataku_db
+depends_on: [mariadb]
+service-reservasi:
+build: ./service-reservasi
+environment:
+DATABASE_URL:
+mysql://wisataku_user:wisataku_pass@mariadb:3306/wisataku_db
+depends_on: [mariadb]
+gateway:
+build: ./gateway
+ports: ["3000:3000"]
+environment:
+JWT_SECRET: rahasia_wisataku_produksi
+SERVICE_DESTINASI_HOST: service-destinasi
+SERVICE_RESERVASI_HOST: service-reservasi
+depends_on: [service-destinasi, service-reservasi]
+volumes:
+mariadb_data:
+docker compose up --build -d
+docker compose ps
+docker compose logs -f gateway
+7.3.3 Konfigurasi Environment dengan ConfigModule
+Alih-alih menulis nilai konfigurasi (host, port, secret) langsung di kode,
+NestJS menyediakan @nestjs/config untuk membaca variabel lingkungan secara
+terstruktur dan type-safe:
+npm install @nestjs/config
+// src/app.module.ts
+import { ConfigModule } from '@nestjs/config';
+
+-- 37 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 38
+@Module({
+imports: [
+ConfigModule.forRoot({ isGlobal: true }),
+// ...modul lain
+],
+})
+export class AppModule {}
+// Penggunaan pada service mana pun
+constructor(private configService: ConfigService) {}
+const jwtSecret = this.configService.get<string>('JWT_SECRET');
+7.3.4 Versioning API Bawaan NestJS
+Mengacu pada prinsip Lauret (2019) mengenai evolusi API tanpa merusak
+consumer yang ada, NestJS menyediakan dukungan URI Versioning bawaan:
+// src/main.ts
+import { VersioningType } from '@nestjs/common';
+app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1'
+});
+// Controller versi lama tetap didukung
+@Controller({ path: 'destinasi', version: '1' })
+export class DestinasiControllerV1 { /* struktur data lama:
+hargaTiket */ }
+// Controller versi baru dengan struktur data berbeda
+@Controller({ path: 'destinasi', version: '2' })
+export class DestinasiControllerV2 { /* struktur data baru:
+hargaDewasa, hargaAnak */ }
+Kedua versi dapat berjalan berdampingan di /v1/destinasi dan /v2/destinasi
+selama masa transisi, sesuai strategi deprecation yang manusiawi (memberi tenggat
+waktu, mendokumentasikan perubahan pada changelog) sebagaimana dibahas
+pada buku ajar teori mata kuliah ini.
+7.3.5 Evaluasi Siklus Hidup API
+Evaluasi rutin mencakup tiga aspek utama, mengacu pada tata kelola API
+(API governance) menurut Subramanian & Raj (2019):
+Aspek Contoh Aktivitas Evaluasi
+Keamanan Memeriksa dependency yang rentan (npm audit), meninjau
+kebijakan RBAC masih sesuai kebutuhan bisnis
+Performa Membandingkan hasil k6 (Bab 5) dari waktu ke waktu, memantau
+response time di lingkungan produksi
+Keberlanjutan Meninjau changelog, endpoint yang sudah deprecated, dan
+rencana migrasi consumer ke versi baru
+
+-- 38 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 39
+7.4 Latihan
+Langkah 1. Tulis Dockerfile untuk setiap layanan
+Buat Dockerfile pada service-destinasi/, service-reservasi/, dan
+gateway/ mengikuti pola multi-stage pada bagian 7.3.1.
+Langkah 2. Tulis docker-compose.yml
+Salin konfigurasi pada bagian 7.3.2 ke root proyek, sesuaikan nama service dan
+environment variable dengan struktur proyek Anda dari Bab 6.
+Langkah 3. Jalankan seluruh sistem
+docker compose up --build -d
+curl http://localhost:3000/destinasi
+Pastikan Gateway dapat menjangkau kedua microservice dan MariaDB dengan
+benar di dalam jaringan Docker internal.
+Langkah 4. Terapkan ConfigModule
+Pasang @nestjs/config pada Gateway dan kedua microservice, pindahkan
+seluruh nilai konfigurasi (secret JWT, host service) dari kode ke environment
+variable.
+Langkah 5. Implementasikan versioning
+Terapkan enableVersioning pada Gateway, buat DestinasiControllerV1 dan
+DestinasiControllerV2 sesuai bagian 7.3.4 untuk mensimulasikan perubahan
+struktur hargaTiket → hargaDewasa/hargaAnak.
+Langkah 6. Deploy ke server cloud
+# Di server cloud (VPS) yang sudah terpasang Docker:
+git clone <url-repository-anda>
+cd wisataku-microservices
+docker compose up --build -d
+Konfigurasikan domain (jika tersedia) agar mengarah ke IP server, dan verifikasi API
+dapat diakses dari luar jaringan lokal.
+Langkah 7. Susun laporan evaluasi
+Buat dokumen singkat berisi hasil npm audit, ringkasan hasil load test terbaru, dan
+daftar endpoint yang berpotensi mengalami breaking change di masa depan.
+Tugas Terkait: Dockerfile, docker-compose.yml, serta URL layanan API yang aktif
+menjadi bagian kedua dari luaran Tugas 5. Integrasi & Deployment Web Service
+(bagian deployment), dikerjakan bersama Bab 6 secara berkelompok (2–3
+mahasiswa).
+
+-- 39 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 40
+BAB VII
+STUDI KASUS TERINTEGRASI
+API APLIKASI WISATA END-TO-END
+8.1 Pengantar Bab
+Bab ini tidak memperkenalkan materi baru, melainkan menyatukan seluruh
+komponen yang telah dibangun pada Bab 1–7 menjadi satu backend API WisataKu
+yang utuh, terintegrasi, dan siap didemonstrasikan sekaligus menjadi acuan
+pengerjaan Tugas 6 Proyek Akhir Web Service Terintegrasi.
+8.2 Arsitektur Akhir Sistem WisataKu
+[Aplikasi Mobile] [Aplikasi Web Admin]
+\ /
+[ API Gateway (NestJS) ]
+Autentikasi JWT • Routing • Agregasi • Versioning
+/ | \
+[service-destinasi] [service-reservasi] [service-ulasan]*
+| | |
+[MariaDB] [MariaDB] [MariaDB]
+(* service-ulasan dapat dipisahkan lebih lanjut mengikuti pola Bab 6,
+atau tetap berada di dalam service-destinasi sesuai kebutuhan tim)
+8.3 Checklist Kesiapan Proyek (Definition of Done)
+Gunakan daftar berikut untuk memverifikasi kelengkapan proyek sebelum presentasi
+akhir:
+1. ☐ Seluruh endpoint REST (Bab 2–3) berjalan sesuai dokumentasi OpenAPI.
+2. ☐ Endpoint GraphQL (Bab 4) dapat diakses dan mengembalikan data
+gabungan Destinasi+Ulasan+Fasilitas dengan benar.
+3. ☐ Autentikasi JWT dan otorisasi berbasis peran (Bab 5) diterapkan pada
+seluruh endpoint sensitif.
+4. ☐ Unit test dan e2e test (Bab 5) berjalan dan lulus (npm run test, npm run
+test:e2e).
+5. ☐ Arsitektur microservices dan API Gateway (Bab 6) berfungsi dengan benar.
+6. ☐ Seluruh layanan dapat dijalankan dengan satu perintah docker compose up
+(Bab 7).
+7. ☐ Strategi versioning API (Bab 7) diterapkan minimal pada satu resource.
+8. ☐ Dokumentasi teknis (README, OpenAPI, changelog) lengkap dan
+mutakhir.
+8.4 Skenario Pengujian End-to-End Terintegrasi
+Skenario berikut menguji seluruh alur bisnis WisataKu secara berurutan,
+menggabungkan REST (registrasi, login, reservasi), keamanan (JWT), dan validasi
+data sebagai bentuk verifikasi akhir sebelum presentasi:
+
+-- 40 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 41
+// test/wisataku-flow.e2e-spec.ts
+import * as request from 'supertest';
+describe('Alur Lengkap Wisatawan WisataKu (e2e)', () => {
+const gatewayUrl = 'http://localhost:3000';
+let token: string;
+let destinasiId: number;
+it('1. Registrasi wisatawan baru', async () => {
+const res = await
+request(gatewayUrl).post('/auth/register').send({
+nama: 'Siti',
+email: 'siti@example.com',
+password: 'rahasia123',
+});
+expect(res.status).toBe(201);
+});
+it('2. Login dan menerima token JWT', async () => {
+const res = await request(gatewayUrl).post('/auth/login').send({
+email: 'siti@example.com',
+password: 'rahasia123',
+});
+expect(res.status).toBe(200);
+token = res.body.access_token;
+});
+it('3. Mencari destinasi kategori Pantai', async () => {
+const res = await
+request(gatewayUrl).get('/destinasi?kategori=Pantai');
+expect(res.status).toBe(200);
+destinasiId = res.body[0].id;
+});
+it('4. Membuat reservasi dengan token yang valid', async () => {
+const res = await request(gatewayUrl)
+.post('/reservasi')
+.set('Authorization', `Bearer ${token}`)
+.send({ destinasiId, tanggalKunjungan: '2025-12-25',
+jumlahTiket: 2 });
+expect(res.status).toBe(201);
+});
+it('5. Admin (tanpa token wisatawan) ditolak menghapus destinasi',
+async () => {
+const res = await request(gatewayUrl)
+.delete(`/destinasi/${destinasiId}`)
+.set('Authorization', `Bearer ${token}`); // token wisatawan,
+bukan admin
+expect(res.status).toBe(403);
+});
+});
+
+-- 41 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 42
+8.5 Dokumentasi Teknis Akhir (README)
+# WisataKu API
+Backend API untuk platform informasi dan reservasi destinasi wisata,
+dibangun dengan NestJS, Prisma ORM, dan MariaDB.
+## Arsitektur
+- API Gateway (NestJS) — port 3000
+- Service Destinasi (NestJS + Prisma) — port 5001 (internal)
+- Service Reservasi (NestJS + Prisma) — port 5002 (internal)
+- MariaDB — port 3306
+## Menjalankan Proyek
+docker compose up --build -d
+## Dokumentasi API
+- REST (Swagger): http://localhost:3000/api/docs
+- GraphQL (Apollo Sandbox): http://localhost:3000/graphql
+## Menjalankan Pengujian
+npm run test # unit test
+npm run test:e2e # end-to-end test
+## Autentikasi
+Sertakan header `Authorization: Bearer <token>` untuk endpoint yang
+memerlukan login. Dapatkan token melalui `POST /auth/login`.
+## Versi API
+- `/v1/destinasi` — struktur data lama (hargaTiket), didukung hingga 31 Des 2025
+- `/v2/destinasi` — struktur data baru (hargaDewasa, hargaAnak)
+8.6 Panduan Presentasi dan Demonstrasi (Tugas 6)
+Struktur presentasi yang disarankan, mengacu pada kriteria penilaian Tugas 6 (API
+stabil & aman, dokumentasi lengkap, presentasi profesional):
+1. Ringkasan arsitektur (5 menit) — tinjauan Gateway, microservices, dan
+teknologi (NestJS, Prisma, MariaDB) yang digunakan.
+2. Demo skenario wisatawan (10 menit) — registrasi → login → cari destinasi
+(REST) → lihat detail lengkap (GraphQL) → buat reservasi (JWT).
+3. Demo skenario admin (5 menit) — login admin, tambah/ubah destinasi,
+percobaan akses ditolak oleh wisatawan biasa.
+4. Demonstrasi teknis (5 menit) — docker compose up, Swagger UI, hasil npm
+run test.
+5. Tanya jawab (10 menit).
+8.7 Luaran Akhir yang Dikumpulkan
+Sesuai Rencana Tugas Praktikum (Tugas 6 Proyek Akhir Web Service
+Terintegrasi):
+
+-- 42 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 43
+1. Source code proyek lengkap (repository GitHub Gateway + seluruh
+microservices).
+2. API yang telah ter-deploy dan dapat diakses (URL aktif).
+3. Dokumentasi teknis dalam format PDF (arsitektur, endpoint, hasil pengujian,
+changelog).
+4. Slide presentasi.
+5. Video demonstrasi (diunggah ke YouTube, tautan disertakan).
+DAFTAR PUSTAKA
+Rujukan Konsep & Prinsip Desain API
+1. Lauret, A. (2019). The Design of Web APIs. Manning Publications.
+2. Subramanian, H., & Raj, P. (2019). Hands-On RESTful API Design Patterns
+and Best Practices. Packt Publishing.
+3. Haro, J. (2023). Microservice APIs: Using Python, Flask, FastAPI, OpenAPI
+and more. Manning Publications.
+Rujukan Teknis Stack
+4. NestJS Documentation. (2024). NestJS: A Progressive Node.js Framework.
+https://docs.nestjs.com
+5. Prisma Documentation. (2024). Prisma ORM. https://www.prisma.io/docs
+6. MariaDB Foundation. (2024). MariaDB Server Documentation.
+https://mariadb.org/documentation
+7. OpenAPI Initiative. (2024). OpenAPI Specification.
+8. GraphQL Foundation. (2024). GraphQL Documentation.
+9. Docker Inc. (2024). Docker Documentation.
+10. k6 Documentation. (2024). Grafana k6 Load Testing. https://k6.io/docs
+LAMPIRAN REKAP ENDPOINT API WISATAKU (NESTJS
+EDITION)
+Method Endpoint Dibahas pada
+Bab Otorisasi
+POST /auth/register 5 Publik
+POST /auth/login 5 Publik
+GET /destinasi 2, 3 Publik
+GET /destinasi/:id 2, 3 Publik
+POST /destinasi 2, 3, 5 Admin
+PATCH /destinasi/:id 2, 3, 5 Admin
+DELETE /destinasi/:id 2, 3, 5 Admin
+GET /destinasi/:id/lengkap 6 (Gateway) Publik
+POST /reservasi 8 Wisatawan
+(login)
+
+-- 43 of 44 --
+
+Modul Praktikum Teknologi Web Service — NestJS, Prisma & MariaDB | Studi Kasus Aplikasi Wisata | Hal. 44
+Method Endpoint Dibahas pada
+Bab Otorisasi
+POST /graphql (query destinasi,
+cariDestinasi)
+4 Publik
+POST /graphql (mutation tambahUlasan) 4 Wisatawan
+(login)*
+GET /v1/destinasi/:id vs /v2/destinasi/:id 7 Publik
+*Penerapan guard pada resolver GraphQL mengikuti pola yang sama dengan Guard
+pada REST Controller (Bab 5), menggunakan @UseGuards() pada level
+Resolver/Mutation.
+
+-- 44 of 44 --
+

@@ -1,0 +1,43 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateUlasanInput {
+  destinasiId: Int!
+  komentar: String!
+  rating: Int!
+}
+
+type Destinasi {
+  fasilitas: [Fasilitas!]
+  hargaTiket: Float!
+  id: Int!
+  kategori: String!
+  lokasi: String
+  nama: String!
+  ratingRata: Float!
+  ulasan: [Ulasan!]
+}
+
+type Fasilitas {
+  destinasiId: Int!
+  id: Int!
+  namaFasilitas: String!
+}
+
+type Mutation {
+  tambahUlasan(input: CreateUlasanInput!): Ulasan!
+}
+
+type Query {
+  cariDestinasi(kategori: String): [Destinasi!]!
+  destinasi(id: Int!): Destinasi!
+  ulasanByDestinasi(destinasiId: Int!): [Ulasan!]!
+}
+
+type Ulasan {
+  destinasiId: Int!
+  id: Int!
+  komentar: String!
+  rating: Int!
+}
